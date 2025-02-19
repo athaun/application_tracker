@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    
+    <!-- Add Job Form Modal -->
+    <div class="modal fade modal-lg" id="addJobModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add a Job Application</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="jobForm">
+                        <div class="mb-2">
+                            <label class="form-label">Company</label>
+                            <input type="text" class="form-control" name="company" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Position</label>
+                            <input type="text" class="form-control" name="position" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Posting URL</label>
+                            <input type="url" class="form-control" name="posting">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Job Code</label>
+                            <input type="text" class="form-control" name="jobCode">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" name="notes"></textarea>
+                        </div>
+                        
+                        <br>                      
+                        
+                        <div class="mb-2">
+                            <label class="form-label">Contact</label>
+                            <input type="text" class="form-control" name="contact">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Date Applied</label>
+                            <input type="date" class="form-control" id="newJobDate" name="date" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Status</label>
+                            <select class="form-control" name="status">
+                                <option value="Applied">Applied</option>
+                                <option value="Interview">Interview</option>
+                                <option value="Offer">Offer</option>
+                                <option value="Rejected">Rejected</option>
+                            </select>
+                        </div>   
+                        
+                        <br>
+
+                        <button type="submit" class="btn btn-primary w-100">Add Job</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    $(document).ready( function() {
+        $('#newJobDate').val(new Date().toDateInputValue());
+    });​
+
+    document.getElementById('jobForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission
+    
+        let formData = new FormData(this);
+        let jsonObject = {};
+        
+        formData.forEach((value, key) => {
+            jsonObject[key] = value;
+        });
+    
+        fetch('/api/jobs', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(jsonObject)
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Network response was not ok.');
+        })
+        .then(data => {
+            console.log('Success:', data);
+            location.reload(); // Reload page after successful submission
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+    </script>
+
+
+
+
+    <div class="container mt-5">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addJobModal">
+            Add Job Application
+        </button>
+        <br><br>
+
+        <input type="text" id="search" class="form-control mb-3" placeholder="Search jobs...">
+        <table class="table table-striped" id="jobTable">
+            <thead>
+                <tr>
+                    <th data-column="company" class="sortable">Company</th>
+                    <th data-column="position" class="sortable">Position</th>
+                    <th data-column="date" class="sortable">Date</th>
+                    <th data-column="status" class="sortable">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be populated dynamically -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Job Detail Modal -->
+    <div class="modal fade modal-lg" id="jobModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Job Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editJobForm">
+                        <div class="mb-3">
+                            <label class="form-label">Company</label>
+                            <input type="text" class="form-control" id="editCompany" name="company">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Position</label>
+                            <input type="text" class="form-control" id="editPosition" name="position">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Date Applied</label>
+                            <input type="date" class="form-control" id="editDate" name="date">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-control" id="editStatus" name="status">
+                                <option value="Applied">Applied</option>
+                                <option value="Interview">Interview</option>
+                                <option value="Offer">Offer</option>
+                                <option value="Rejected">Rejected</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" id="editNotes" name="notes"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Job Code</label>
+                            <input type="text" class="form-control" id="editJobCode" name="jobCode">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Posting URL <a id="postingUrl" href="#" target="_blank">(Visit)</a></label>
+                            <input type="url" class="form-control" id="editPosting" name="posting">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Contact</label>
+                            <input type="text" class="form-control" id="editContact" name="contact">
+                        </div>
+                        
+                        <input type="hidden" id="editJobId">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-danger" id="deleteJob">Delete</button>
+                    <button class="btn btn-primary" id="saveJob">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    $(document).ready(function() {
+        let jobs = [];
+        let sortOrder = 1;
+
+        function fetchJobs() {
+            $.get('/api/jobs', function(data) {
+                jobs = data;
+                renderTable(jobs);
+            });
+        }
+
+        function renderTable(jobs) {
+            let tbody = $('#jobTable tbody');
+            tbody.empty();
+            jobs.forEach(job => {
+                let pillColor = "secondary";
+                switch (job.status) {
+                    case "Rejected":
+                        pillColor = "warning";
+                        break;
+                    case "Interview":
+                        pillColor = "primary";
+                        break;
+                    case "Offer":
+                        pillColor = "success";
+                        break;
+                }
+
+                tbody.append(`<tr data-id="${job._id}" class="job-row">
+                    <td>${job.company}</td>
+                    <td>${job.position}</td>
+                    <td>${new Date(job.date).toLocaleDateString()}</td>
+                    <td><span class="badge rounded-pill text-bg-${pillColor}">${job.status}</span></td>
+                </tr>`);
+            });
+        }
+
+        $('#search').on('input', function() {
+            let query = $(this).val().toLowerCase();
+            let filtered = jobs.filter(job => 
+                job.company.toLowerCase().includes(query) ||
+                job.position.toLowerCase().includes(query) ||
+                job.status.toLowerCase().includes(query) ||
+                job.jobCode.toLowerCase().includes(query) || 
+                job.contact.toLowerCase().includes(query) || 
+                job.notes.toLowerCase().includes(query)
+            );
+            renderTable(filtered);
+        });
+
+        $('.sortable').on('click', function() {
+            let column = $(this).data('column');
+            sortOrder *= -1;
+            jobs.sort((a, b) => (a[column] > b[column] ? 1 : -1) * sortOrder);
+            renderTable(jobs);
+        });
+
+        $(document).on('click', '.job-row', function() {
+            let jobId = $(this).data('id');
+            $.get(`/api/jobs/${jobId}`, function(job) {
+                $('#editJobForm').find('input, textarea, select').each(function() {
+                    let fieldName = $(this).attr('name');
+                    if (fieldName === 'date' && job.date) {
+                        $(this).val(new Date(job.date).toISOString().split('T')[0]); 
+                    } else {
+                        $(this).val(job[fieldName] || '');
+                    }
+                });
+
+                console.log(job)
+                $("#postingUrl").attr("href", job.posting);
+                $('#editJobId').val(job._id);
+                $('#jobModal').modal('show');
+            });
+        });
+
+        $('#saveJob').on('click', function() {
+            let id = $('#editJobId').val();
+            let data = $('#editJobForm').serialize();
+            $.ajax({ url: `/api/jobs/${id}`, method: 'PUT', data }).done(() => location.reload());
+        });
+
+        $('#deleteJob').on('click', function() {
+            let id = $('#editJobId').val();
+            $.ajax({ url: `/api/jobs/${id}`, method: 'DELETE' }).done(() => location.reload());
+        });
+
+        fetchJobs();
+    });
+    </script>
+</body>
+</html>
