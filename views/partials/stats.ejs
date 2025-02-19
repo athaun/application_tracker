@@ -1,0 +1,97 @@
+<div class="mt-4">
+    <div class="row">
+        <!-- Total Applications -->
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Total Applications</h6>
+                    <h2 class="card-title"><%= jobs.length %></h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Applications -->
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Active Applications</h6>
+                    <h2 class="card-title"><%= jobs.filter(job => job.status !== 'Rejected' && job.status !== 'Offer').length %></h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active -->
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Active Applications</h6>
+                    <h2 class="card-title"><%= (jobs.filter(job => job.status !== 'Rejected' && job.status !== 'Offer').length / jobs.length * 100).toFixed(1) %>%</h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Offers -->
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Offers</h6>
+                    <h2 class="card-title"><%= jobs.filter(job => job.status === 'Offer').length %></h2>
+                </div>
+            </div>
+        </div>        
+    </div>
+
+    <!-- Additional Statistics Row -->
+    <div class="row">
+        <!-- Response Rate -->
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Response Rate</h6>
+                    <h2 class="card-title">
+                        <%= ((jobs.filter(job => job.status !== 'Applied').length / jobs.length) * 100).toFixed(1) %>%
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interview Rate -->
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Interview Rate</h6>
+                    <h2 class="card-title"><%= ((jobs.filter(job => job.status === 'Interview').length / jobs.length) * 100).toFixed(1) %>%</h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weekly Average -->
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Weekly Average</h6>
+                    <h2 class="card-title">
+                        <%
+                            const dates = jobs.map(job => new Date(job.date));
+                            const earliestDate = new Date(Math.min(...dates));
+                            const latestDate = new Date(Math.max(...dates));
+                            const weeksDiff = Math.max(1, Math.ceil((latestDate - earliestDate) / (1000 * 60 * 60 * 24 * 7)));
+                            const weeklyAvg = (jobs.length / weeksDiff).toFixed(1);
+                        %>
+                        <%= weeklyAvg %>
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Weeks -->
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Weeks Job Hunting</h6>
+                    <h2 class="card-title"><%= weeksDiff %></h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
