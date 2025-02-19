@@ -1,20 +1,122 @@
 /* Import font */
-@import url('https://fonts.googleapis.com/css?family=Raleway:400,800,900');
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600&display=swap');
 
 /* Global Styles */
 html, body {
     width: 100%;
     height: 100%;
     margin: 0;
+    padding: 0;
     box-sizing: border-box;
     font-family: 'Raleway', sans-serif;
-    background: rgb(12, 12, 12);
     color: #d3cee6;
+    background-color: #121212; /* Deep black for a cleaner look */
     overflow-x: hidden;
 }
 
-* {
-    transition: all 0.3s;
+/* Bootstrap Overrides */
+.bg-dark,
+.navbar-dark {
+    background-color: #121212 !important;
+    border-bottom: 1px solid #222;
+}
+
+.text-light, 
+.text-white {
+    color: #d3cee6 !important;
+}
+
+/* Cards */
+.card {
+    background-color: #1a1a1a;
+    border: 1px solid #222;
+    border-radius: 8px;
+    color: #d3cee6;
+}
+
+.card-header {
+    background-color: #181818;
+    border-bottom: 1px solid #222;
+    color: #d3cee6;
+}
+
+.card-body {
+    background-color: #1a1a1a;
+    color: #d3cee6;
+}
+
+/* Buttons */
+.btn-dark {
+    background-color: #222;
+    border: 1px solid #333;
+    color: #d3cee6;
+}
+
+.btn-dark:hover {
+    background-color: #2a2a2a;
+    border-color: #444;
+}
+
+/* Forms & Inputs */
+.form-control {
+    background-color: #161616;
+    border: 1px solid #333;
+    color: #d3cee6;
+    border-radius: 6px;
+}
+
+.form-control:focus {
+    background-color: #1e1e1e;
+    border-color: #5357c8;
+    color: #ffffff;
+    box-shadow: 0 0 5px rgba(83, 87, 200, 0.5);
+}
+
+/* Tables */
+.table {
+    background-color: #1a1a1a;
+    color: #d3cee6;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.table th,
+.table td {
+    border: 1px solid #222;
+    padding: 12px;
+}
+
+.table thead th {
+    background-color: #181818;
+    color: #b1b1b1;
+    border-bottom: 2px solid #333;
+}
+
+.card-body {
+    color: #ffc107;
+}
+
+tr.job-row td{
+    background-color: #181818;
+}
+
+/* Modals */
+.modal-content {
+    background-color: #1a1a1a;
+    color: #d3cee6;
+    border-radius: 8px;
+    border: 1px solid #222;
+}
+
+.modal-header {
+    background-color: #181818;
+    border-bottom: 1px solid #222;
+    color: #d3cee6;
+}
+
+.modal-footer {
+    background-color: #181818;
+    border-top: 1px solid #222;
 }
 
 /* Grid Layout */
@@ -33,18 +135,19 @@ html, body {
     margin-top: 8px;
     padding: 20px;
     border-radius: 10px;
-    background: rgba(20, 20, 20, 1);
-    border: 1px solid rgba(20, 20, 20, 1);
+    border: 1px solid #222;
+    background-color: #161616;
     color: #d3cee6;
     text-align: left;
     font-size: 17px;
+    transition: background 0.2s ease-in-out;
 }
 
 .column div:hover {
-    background: #1e1e21;
+    background: #1e1e1e;
     cursor: pointer;
 }
 
 .column div.selected {
-    border: 1px solid #5357C8;
+    border: 1px solid #5357c8;
 }
