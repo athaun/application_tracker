@@ -20,12 +20,15 @@
             </div>
         </div>
 
-        <!-- Active -->
+        <!-- Total Companies -->
         <div class="col-md-3 mb-4">
             <div class="card">
                 <div class="card-body">
-                    <h6 class="card-subtitle mb-2 text-muted">Active Applications</h6>
-                    <h2 class="card-title"><%= (jobs.filter(job => job.status !== 'Rejected' && job.status !== 'Offer').length / jobs.length * 100).toFixed(1) %>%</h2>
+                    <h6 class="card-subtitle mb-2 text-muted">Total Companies</h6>
+                    <%
+                        const uniqueCompanies = [...new Set(jobs.map(job => job.company.trim().toLowerCase()))].length;
+                    %>
+                    <h2 class="card-title"><%= uniqueCompanies %></h2>
                 </div>
             </div>
         </div>

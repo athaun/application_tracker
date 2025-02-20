@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { jobRoutes } from './routes/jobs.js';
 import JobApplication from './models/JobApplication.js';
 import methodOverride from 'method-override';
+import morgan from 'morgan';
 
 const app = express();
 
@@ -12,6 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method')); // To handle PUT & DELETE from forms
 app.use(express.static('public')); // Serve static files
 app.set('view engine', 'ejs');
+app.use(morgan('combined'))
 
 // MongoDB Connection
 mongoose.connect('mongodb://localhost/jobTracker', {

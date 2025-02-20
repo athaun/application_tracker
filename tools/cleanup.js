@@ -46,16 +46,12 @@ const cleanupStatuses = async () => {
             }
         }
         
-        console.log('\nStatus cleanup completed!');
-        
     } catch (error) {
         console.error('Error during cleanup:', error);
     } finally {
-        // Close the database connection
         await mongoose.connection.close();
         console.log('Database connection closed');
     }
 };
 
-// Run the cleanup function
 cleanupStatuses();

@@ -54,7 +54,7 @@
                         </div>
                         <div class="mb-2">
                             <label class="form-label">Status</label>
-                            <select class="form-control" name="status">
+                            <select class="form-control" name="status" id="statusSelector">
                                 <option value="Applied">Applied</option>
                                 <option value="Interview">Interview</option>
                                 <option value="Offer">Offer</option>
@@ -73,38 +73,41 @@
     
     <script>
     $(document).ready( function() {
-        $('#newJobDate').val(new Date().toDateInputValue());
-    });​
+        $('#addJobModal').on('shown.bs.modal', function () {
+            $('#jobForm').find('input, textarea, select').not('#statusSelector').val('');
 
-    document.getElementById('jobForm').addEventListener('submit', function(event) {
-        event.preventDefault(); // Prevent default form submission
-    
-        let formData = new FormData(this);
-        let jsonObject = {};
-        
-        formData.forEach((value, key) => {
-            jsonObject[key] = value;
+            $('#jobForm input:first').focus(); // Focus first input field
+            
+            // Get YYYY-MM-DD format
+            $('#newJobDate').val(new Date().toISOString().split('T')[0]);   
         });
-    
-        fetch('/api/jobs', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(jsonObject)
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            throw new Error('Network response was not ok.');
-        })
-        .then(data => {
-            console.log('Success:', data);
-            location.reload(); // Reload page after successful submission
-        })
-        .catch(error => {
-            console.error('Error:', error);
+
+        document.getElementById('jobForm').addEventListener('submit', function(event) {
+            event.preventDefault(); 
+            
+            let formData = new FormData(this);
+            let jsonObject = {};
+            
+            formData.forEach((value, key) => {
+                jsonObject[key] = value;
+            });
+
+            fetch('/api/jobs', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jsonObject)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Error");
+            })
         });
     });
     </script>
