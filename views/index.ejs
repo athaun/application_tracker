@@ -23,11 +23,13 @@
                     <form id="jobForm">
                         <div class="mb-2">
                             <label class="form-label">Company</label>
-                            <input type="text" class="form-control" name="company" required>
+                            <input type="text" class="form-control" name="company" required list="companyList">
+                            <datalist id="companyList"></datalist>
                         </div>
                         <div class="mb-2">
                             <label class="form-label">Position</label>
-                            <input type="text" class="form-control" name="position" required>
+                            <input type="text" class="form-control" name="position" required list="positionList">
+                            <datalist id="positionList"></datalist>
                         </div>
                         <div class="mb-2">
                             <label class="form-label">Posting URL</label>
@@ -197,6 +199,8 @@
         </div>
     </div>
 
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
     <script>
     $(document).ready(function() {
         let jobs = [];
@@ -205,7 +209,26 @@
         function fetchJobs() {
             $.get('/api/jobs', function(data) {
                 jobs = data;
+                jobs.sort((a, b) => new Date(b.date) - new Date(a.date));
                 renderTable(jobs);
+
+                // Autocomplete for company input
+                // Populate datalist for company input
+                let companies = [...new Set(jobs.map(job => job.company))]; // Get unique company names
+                let companyList = $('#companyList');
+                companyList.empty(); // Clear any existing options
+
+                companies.forEach(company => {
+                    companyList.append(new Option(company));
+                });
+
+                let positions = [...new Set(jobs.map(job => job.position))]; // Get unique position names
+                let positionList = $('#positionList');
+                positionList.empty(); // Clear any existing options
+
+                positions.forEach(position => {
+                    positionList.append(new Option(position));
+                });
             });
         }
 
