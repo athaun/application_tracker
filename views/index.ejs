@@ -124,7 +124,10 @@
         </button>
         <br><br>
 
-        <input type="text" id="search" class="form-control mb-3" placeholder="Search jobs...">
+        <div class="input-group mb-3">
+            <input type="text" id="search" class="form-control" placeholder="Search jobs..." list="searchList">
+        </div>
+        <datalist id="searchList"></datalist>
         <table class="table table-striped" id="jobTable">
             <thead>
                 <tr>
@@ -135,7 +138,7 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Rows will be populated dynamically -->
+
             </tbody>
         </table>
     </div>
@@ -210,25 +213,44 @@
             $.get('/api/jobs', function(data) {
                 jobs = data;
                 jobs.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                $('#search').val('');
+
                 renderTable(jobs);
 
+                let searchList = $('#searchList');
+                searchList.empty(); // Clear any existing options
+
                 // Autocomplete for company input
-                // Populate datalist for company input
                 let companies = [...new Set(jobs.map(job => job.company))]; // Get unique company names
                 let companyList = $('#companyList');
                 companyList.empty(); // Clear any existing options
-
                 companies.forEach(company => {
                     companyList.append(new Option(company));
+                    searchList.append(new Option(company));
                 });
 
+                // Autocomplete for position input
                 let positions = [...new Set(jobs.map(job => job.position))]; // Get unique position names
                 let positionList = $('#positionList');
                 positionList.empty(); // Clear any existing options
-
                 positions.forEach(position => {
                     positionList.append(new Option(position));
+                    searchList.append(new Option(position));
                 });
+
+                // Autocomplete for status input
+                let statuses = [...new Set(jobs.map(job => job.status))]; // Get unique status names
+                statuses.forEach(status => {
+                    searchList.append(new Option(status));
+                });
+
+                // Autocomplete for job code input
+                let jobCodes = [...new Set(jobs.map(job => job.jobCode))]; // Get unique job code names
+                jobCodes.forEach(jobCode => {
+                    searchList.append(new Option(jobCode));
+                });
+
             });
         }
 
