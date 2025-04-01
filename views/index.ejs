@@ -133,6 +133,7 @@
                 <tr>
                     <th data-column="company" class="sortable">Company</th>
                     <th data-column="position" class="sortable">Position</th>
+                    <th data-column="code" class="sortable">Code</th>
                     <th data-column="date" class="sortable">Date</th>
                     <th data-column="status" class="sortable">Status</th>
                 </tr>
@@ -274,6 +275,7 @@
                 tbody.append(`<tr data-id="${job._id}" class="job-row">
                     <td>${job.company}</td>
                     <td>${job.position}</td>
+                    <td>${job.jobCode}</td>
                     <td>${new Date(job.date).toLocaleDateString()}</td>
                     <td><span class="badge rounded-pill text-bg-${pillColor}">${job.status}</span></td>
                 </tr>`);
