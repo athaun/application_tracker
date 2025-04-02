@@ -6,85 +6,98 @@ const router = express.Router();
 
 // Parses a job posting URL and extracts details
 router.post('/parse', async (req, res) => {
-  const { url } = req.body;
-  if (!url) {
+  const { url, notesContent, parsingUrl } = req.body;
+  
+  console.log('Request body:', req.body);
+  
+  if (parsingUrl && !url) {
     return res.status(400).json({ message: 'URL is required' });
   }
+  if (!parsingUrl && !notesContent) {
+    return res.status(400).json({ message: 'Notes content is required' });
+  }  
+
 
   try {
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-
-    const page = await browser.newPage();
-
-    await page.goto(url, { waitUntil: 'networkidle2' });
-
-    // Extract the meaningful text content instead of full HTML
-    const extractedText = await page.evaluate(() => {
-      function cleanText(text) {
-        return text.replace(/\s+/g, ' ').trim(); // Normalize spaces
-      }
-
-      function isValidText(text) {
-        return text.length > 10 && !/^\s*$/.test(text); // Remove short/unnecessary text
-      }
-
-      function isDuplicate(existingTexts, newText) {
-        return existingTexts.some(text => text.includes(newText) || newText.includes(text));
-      }
-
-      const uniqueText = [];
-
-      document.body.querySelectorAll('p, h1, h2, h3, li, span, div').forEach(el => {
-        if (el.offsetParent !== null) { // Only visible elements
-          const text = cleanText(el.innerText);
-          if (isValidText(text) && !isDuplicate(uniqueText, text)) {
-            uniqueText.push(text);
-          }
-        }
+    let extractedText = { fullText: '', title: '', company: '', location: '' };
+    if (parsingUrl) {
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
       });
 
-      const titleElements = document.querySelectorAll('h1, h2, .job-title, .position-title');
-      let title = '';
-      for (const el of titleElements) {
-        const text = cleanText(el.textContent);
-        if (text.length > 3 && text.length < 100) {
-          title = text;
-          break;
+      const page = await browser.newPage();
+
+      await page.goto(url, { waitUntil: 'networkidle2' });
+
+      // Extract the meaningful text content instead of full HTML
+      extractedText = await page.evaluate(() => {
+        function cleanText(text) {
+          return text.replace(/\s+/g, ' ').trim(); // Normalize spaces
         }
-      }
 
-      const companyElements = document.querySelectorAll('.company-name, .employer, [itemprop="hiringOrganization"]');
-      let company = '';
-      for (const el of companyElements) {
-        const text = cleanText(el.textContent);
-        if (text.length > 0) {
-          company = text;
-          break;
+        function isValidText(text) {
+          return text.length > 10 && !/^\s*$/.test(text); // Remove short/unnecessary text
         }
-      }
 
-      const locationElements = document.querySelectorAll('.location, [itemprop="jobLocation"]');
-      let location = '';
-      for (const el of locationElements) {
-        const text = cleanText(el.textContent);
-        if (text.length > 0) {
-          location = text;
-          break;
+        function isDuplicate(existingTexts, newText) {
+          return existingTexts.some(text => text.includes(newText) || newText.includes(text));
         }
-      }
 
-      return {
-        fullText: uniqueText.join('\n\n'),
-        title,
-        company,
-        location
-      };
-    });
+        const uniqueText = [];
 
-    await browser.close();
+        document.body.querySelectorAll('p, h1, h2, h3, li, span, div').forEach(el => {
+          if (el.offsetParent !== null) { // Only visible elements
+            const text = cleanText(el.innerText);
+            if (isValidText(text) && !isDuplicate(uniqueText, text)) {
+              uniqueText.push(text);
+            }
+          }
+        });
+
+        const titleElements = document.querySelectorAll('h1, h2, .job-title, .position-title');
+        let title = '';
+        for (const el of titleElements) {
+          const text = cleanText(el.textContent);
+          if (text.length > 3 && text.length < 100) {
+            title = text;
+            break;
+          }
+        }
+
+        const companyElements = document.querySelectorAll('.company-name, .employer, [itemprop="hiringOrganization"]');
+        let company = '';
+        for (const el of companyElements) {
+          const text = cleanText(el.textContent);
+          if (text.length > 0) {
+            company = text;
+            break;
+          }
+        }
+
+        const locationElements = document.querySelectorAll('.location, [itemprop="jobLocation"]');
+        let location = '';
+        for (const el of locationElements) {
+          const text = cleanText(el.textContent);
+          if (text.length > 0) {
+            location = text;
+            break;
+          }
+        }
+
+        return {
+          fullText: uniqueText.join('\n\n'),
+          title,
+          company,
+          location
+        };
+      });
+
+      await browser.close();
+    } else {
+      // Use the provided notesContent directly
+      extractedText.fullText = notesContent;
+    }
 
     // Use Ollama to parse the job application details with more focused input
     const prompt = `
@@ -120,31 +133,29 @@ router.post('/parse', async (req, res) => {
     Url: ${url}
 
     DO NOT MAKE UP ANY DATA, explicitly use only the information provided in the job posting text or mark it as 'Not found'.
-`;
+    `;
 
-
-    console.log('Prompt sent to LLM:', prompt);
+    // console.log('Prompt sent to LLM:', prompt);
 
     const response = await ollama.chat({
       model: 'gemma3:4b',
       messages: [
         { role: 'system', content: prompt }
       ],
-      temperature: 0.1, // Lower temperature for more deterministic outputs
+      temperature: 0.1,
     });
-
-    // Log response for debugging
-
 
     let responseContent = response.message.content;
     if (responseContent.startsWith('```json')) {
       responseContent = responseContent.replace(/^```json/, '').replace(/```$/, '').trim();
     }
 
+    // console.log('Raw response from LLM:', responseContent);
+
     // Try to parse the JSON response
     try {
       const parsedResponse = JSON.parse(responseContent);
-      console.log('Parsed JSON response:', parsedResponse);
+      // console.log('Parsed JSON response:', parsedResponse);
 
       return res.json(parsedResponse);
     } catch (jsonError) {

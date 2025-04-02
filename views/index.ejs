@@ -41,15 +41,33 @@
                                 </button>
                             </div>
                         </div>
+                       
+                        <div class="mb-2">
+                            <label class="form-label">Job Code</label>
+                            <input type="text" class="form-control" name="jobCode">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" name="notes" rows="8"></textarea>
+                        </div>
+
                         <script>
                             $(document).ready(function() {
                                 $('#parseJob').on('click', function() {
+                                    console.log("Parsing job details...");
                                     const url = $('#jobUrl').val();
+                                    const notesContent = $('textarea[name="notes"]').val();
+
+                                    let parsingUrl = true;
+                                    if (notesContent.length > 0) {
+                                        parsingUrl = false;
+                                    }
+
                                     const button = $(this);
                                     const spinner = $('#parseJobSpinner');
 
-                                    if (!url) {
-                                        alert('Please enter a job listing URL.');
+                                    if (!url && !notesContent) {
+                                        alert("Please enter a URL or notes content to parse.");
                                         return;
                                     }
 
@@ -62,10 +80,17 @@
                                         headers: {
                                             'Content-Type': 'application/json'
                                         },
-                                        body: JSON.stringify({ url })
+                                        body: JSON.stringify({ 
+                                            url: url, 
+                                            notesContent: notesContent, 
+                                            parsingUrl: parsingUrl
+                                        })
                                     })
                                     .then(response => response.json())
                                     .then(data => {
+                                        
+                                        $('textarea[name="notes"]').val('');
+
                                         const { title, jobCode, requirements, description, skills, company, contact, location, salary } = data;
 
                                         console.log(data);
@@ -102,14 +127,6 @@
                                 });
                             });
                         </script>
-                        <div class="mb-2">
-                            <label class="form-label">Job Code</label>
-                            <input type="text" class="form-control" name="jobCode">
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label">Notes</label>
-                            <textarea class="form-control" name="notes"></textarea>
-                        </div>
                         
                         <br>                      
                         
@@ -243,8 +260,8 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Notes</label>
-                            <textarea class="form-control" id="editNotes" name="notes"></textarea>
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" id="editNotes" name="notes" rows="8"></textarea>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Job Code</label>
