@@ -2,7 +2,7 @@
 I was using excel to track my applications, but excel is ugly, so I made this with full feature parity.
 
 ### Running
-requires mongodb to be running.
+requires mongodb and ollama with gemma:4b to be running.
 ```
 npm i .
 npm run start
