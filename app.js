@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import { jobRoutes } from './routes/jobs.js';
+import { llmRoutes } from './routes/llm.js';
 import JobApplication from './models/JobApplication.js';
 import methodOverride from 'method-override';
 import morgan from 'morgan';
@@ -25,6 +26,7 @@ mongoose.connect('mongodb://localhost/jobTracker', {
 
 // Routes
 app.use('/api/jobs', jobRoutes);
+app.use('/api/llm/', llmRoutes)
 
 // Home Route (Render all jobs)
 app.get('/', async (req, res) => {

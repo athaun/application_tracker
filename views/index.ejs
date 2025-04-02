@@ -33,8 +33,75 @@
                         </div>
                         <div class="mb-2">
                             <label class="form-label">Posting URL</label>
-                            <input type="url" class="form-control" name="posting">
+                            <div class="input-group">
+                                <input type="url" class="form-control" name="posting" id="jobUrl">
+                                <button class="btn btn-secondary" type="button" id="parseJob">
+                                    <span id="parseJobSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                    Parse details
+                                </button>
+                            </div>
                         </div>
+                        <script>
+                            $(document).ready(function() {
+                                $('#parseJob').on('click', function() {
+                                    const url = $('#jobUrl').val();
+                                    const button = $(this);
+                                    const spinner = $('#parseJobSpinner');
+
+                                    if (!url) {
+                                        alert('Please enter a job listing URL.');
+                                        return;
+                                    }
+
+                                    // Show spinner and disable button
+                                    spinner.removeClass('d-none');
+                                    button.prop('disabled', true);
+
+                                    fetch('/api/llm/parse', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify({ url })
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        const { title, jobCode, requirements, description, skills, company, contact, location, salary } = data;
+
+                                        console.log(data);
+
+                                        // Populate the form fields with parsed details
+                                        $('input[name="position"]').val(title || '');
+                                        $('input[name="jobCode"]').val(jobCode || '');
+                                        if (Array.isArray(requirements)) {
+                                            $('textarea[name="notes"]').val((_, currentValue) => currentValue + 'Requirements:\n' + requirements.map(req => `• ${req}`).join('\n'));
+                                        }
+                                        if (description) {
+                                            $('textarea[name="notes"]').val((_, currentValue) => currentValue + '\n\nDescription:\n' + description);
+                                        }
+                                        if (Array.isArray(skills)) {
+                                            $('textarea[name="notes"]').val((_, currentValue) => currentValue + '\n\nSkills:\n' + skills.map(skill => `• ${skill}`).join('\n'));
+                                        }
+                                        if (location && location != "Not found") {
+                                            $('textarea[name="notes"]').val((_, currentValue) => currentValue + '\n\nLocation:\n' + location);
+                                        }
+                                        if (salary && salary != "Not found") {
+                                            $('textarea[name="notes"]').val((_, currentValue) => currentValue + '\n\nSalary:\n' + salary);
+                                        }
+                                        $('input[name="company"]').val(company || '');
+                                        $('input[name="contact"]').val(contact || '');
+                                    })
+                                    .catch(error => {
+                                        console.error('Error:', error);
+                                    })
+                                    .finally(() => {
+                                        // Hide spinner and enable button
+                                        spinner.addClass('d-none');
+                                        button.prop('disabled', false);
+                                    });
+                                });
+                            });
+                        </script>
                         <div class="mb-2">
                             <label class="form-label">Job Code</label>
                             <input type="text" class="form-control" name="jobCode">
