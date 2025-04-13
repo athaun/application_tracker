@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resume</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      line-height: 1.6;
+    }
+    h1, h2, h3 {
+      margin: 0;
+      padding: 0;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+    .skills, .experience, .projects {
+      margin-left: 20px;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    ul li {
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1><%= name %></h1>
+  <p>
+    <a href="<%= linkedin %>">LinkedIn</a> |
+    <a href="<%= github %>">GitHub</a> |
+    <a href="<%= portfolio %>">Portfolio</a>
+  </p>
+
+  <div class="section">
+    <h2>OBJECTIVE</h2>
+    <p><%= objective %></p>
+  </div>
+
+  <div class="section">
+    <h2>EDUCATION</h2>
+    <p><%= education.degree %> - <%= education.honors %></p>
+    <p><%= education.university %> | GPA: <%= education.gpa %></p>
+  </div>
+
+  <div class="section">
+    <h2>SKILLS</h2>
+    <ul class="skills">
+      <% skills.forEach(skill => { %>
+        <li><%= skill %></li>
+      <% }) %>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>EXPERIENCE</h2>
+    <ul class="experience">
+      <% experience.forEach(job => { %>
+        <li>
+          <strong><%= job.title %></strong> – <%= job.company %> | <%= job.type %>. <%= job.dates %>
+          <ul>
+            <% job.responsibilities.forEach(responsibility => { %>
+              <li><%= responsibility %></li>
+            <% }) %>
+          </ul>
+        </li>
+      <% }) %>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>PERSONAL PROJECTS</h2>
+    <ul class="projects">
+      <% projects.forEach(project => { %>
+        <li>
+          <a href="<%= project.link %>"><%= project.name %></a>
+        </li>
+      <% }) %>
+    </ul>
+  </div>
+</body>
+</html>

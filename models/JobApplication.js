@@ -20,13 +20,28 @@ const jobApplicationSchema = new mongoose.Schema({
   jobCode: {
     type: String,
   },
-  posting: {
+  posting: { // URL of the job posting
     type: String,
   },
   contact: {
     type: String,
   },
   notes: {
+    type: String,
+  },
+  requirements: {
+    type: [String],
+  },
+  description: {
+    type: String,
+  },
+  skills: {
+    type: [String],
+  },
+  location: {
+    type: String,
+  },
+  salary: {
     type: String,
   },
 });

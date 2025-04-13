@@ -88,7 +88,6 @@
                                     })
                                     .then(response => response.json())
                                     .then(data => {
-                                        
                                         $('textarea[name="notes"]').val('');
 
                                         const { title, jobCode, requirements, description, skills, company, contact, location, salary } = data;
@@ -280,6 +279,7 @@
                     </form>
                 </div>
                 <div class="modal-footer">
+                    <button class="btn btn-secondary" id="generateResume">Generate Resume</button>
                     <button class="btn btn-danger" id="deleteJob">Delete</button>
                     <button class="btn btn-warning" id="saveJob">Save Changes</button>
                 </div>
@@ -291,6 +291,51 @@
 
     <script>
     $(document).ready(function() {
+
+        // Handle "Generate Resume" button click
+        $('#generateResume').on('click', function () {
+            const jobDetails = {
+                company: $('#editCompany').val(),
+                position: $('#editPosition').val(),
+                date: $('#editDate').val(),
+                status: $('#editStatus').val(),
+                notes: $('#editNotes').val(),
+                jobCode: $('#editJobCode').val(),
+                posting: $('#editPosting').val(),
+                contact: $('#editContact').val(),
+            };
+
+            // Send job details to the backend
+            fetch('/api/resume/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ jobDetails }),
+            })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Failed to generate resume');
+                }
+                return response.blob();
+            })
+            .then((blob) => {
+                // Create a link to download the PDF
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', 'resume.pdf');
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('Failed to generate resume. Please try again.');
+            });
+        });
+
+
         let jobs = [];
         let sortOrder = 1;
 
@@ -360,7 +405,7 @@
                     <td>${job.company}</td>
                     <td>${job.position}</td>
                     <td>${job.jobCode}</td>
-                    <td>${new Date(job.date).toLocaleDateString()}</td>
+                    <td>${new Date(job.date).toLocaleDateString('en-US', { timeZone: 'UTC' })}</td>
                     <td><span class="badge rounded-pill text-bg-${pillColor}">${job.status}</span></td>
                 </tr>`);
             });

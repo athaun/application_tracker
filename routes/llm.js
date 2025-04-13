@@ -157,6 +157,8 @@ router.post('/parse', async (req, res) => {
       const parsedResponse = JSON.parse(responseContent);
       // console.log('Parsed JSON response:', parsedResponse);
 
+      parsedResponse.description = parsedResponse.description + "\n\n-----------------------------\n\n" + extractedText.fullText;
+
       return res.json(parsedResponse);
     } catch (jsonError) {
       console.error('Failed to parse JSON response:', jsonError);

@@ -7,6 +7,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const jobs = await JobApplication.find();
+    jobs.sort((a, b) => new Date(b._id.getTimestamp()) - new Date(a._id.getTimestamp()));
     res.json(jobs);
   } catch (error) {
     res.status(500).json({ message: error.message });
