@@ -41,9 +41,9 @@ router.post('/generate', async (req, res) => {
         const resumeData = {
             name: "Asher Haun",
             contact: {
-                email: "asher.haun@outlook.com",
-                location: "Fort Worth, Texas",
-                phone: "(682) 444 5533",
+                email: "",
+                location: "",
+                phone: "",
                 linkedin: "linkedin.com/in/athaun",
                 github: "github.com/athaun",
                 portfolio: "athaun.tech"
